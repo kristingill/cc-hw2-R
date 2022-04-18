@@ -1,0 +1,143 @@
+---
+title: "Climate Change"
+author: "Kristin Gill and Genevieve Chiong"
+date: "4/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+library(stringr)
+```
+
+Historical Data
+```{r}
+historical <- read_csv(here("data", "2948034.csv")) %>% 
+  clean_names() %>% 
+  mutate(tavg = (tmax+tmin)/2) %>% 
+  select(date, tavg) %>% 
+  mutate(date = as_date(date)) %>% 
+  mutate(year = year(date)) %>% 
+  mutate(month = month(date)) %>% 
+  filter(month == 7)
+
+historical_average <- historical %>% 
+  group_by(year, month) %>% 
+  summarize(month_average = mean(tavg)) %>% 
+  mutate(temperature_c = (month_average - 32)/1.8)
+
+historical_merge <- merge(historical_average, historical)
+```
+
+Projection Data
+```{r}
+noaa_119 <- read_csv(here("data", "noaa_119.csv")) %>% 
+  mutate(time = as_datetime(time)) %>% 
+  mutate(date = date(time)) %>% 
+  mutate(time = as.character(time)) %>% 
+  separate(col = time, into = c("date_na", "time"), sep = " ") %>%
+  mutate(temperature_c = tas - 273.15) %>% 
+  select(date, time, temperature_c) %>% 
+  filter(time == "12:00:00") # noon time temperatures
+
+noaa_585 <- read_csv(here("data", "noaa_585.csv")) %>% 
+  mutate(time = as_datetime(time)) %>% 
+  mutate(date = date(time)) %>% 
+  mutate(time = as.character(time)) %>% 
+  separate(col = time, into = c("date_na", "time"), sep = " ") %>%
+  mutate(temperature_c = tas - 273.15) %>% 
+  select(date, time, temperature_c) %>% 
+  filter(time == "12:00:00") # noon time temperatures
+
+miroc_119 <- read_csv(here("data", "miroc_119.csv")) %>% 
+  mutate(time = as_datetime(time)) %>% 
+  mutate(date = date(time)) %>% 
+  mutate(time = as.character(time)) %>% 
+  separate(col = time, into = c("date_na", "time"), sep = " ") %>%
+  mutate(temperature_c = tas - 273.15) %>% 
+  select(date, time, temperature_c) %>% 
+  filter(time == "12:00:00") # noon time temperatures
+
+miroc_585 <- read_csv(here("data", "miroc_585.csv")) %>% 
+  mutate(time = as_datetime(time)) %>% 
+  mutate(date = date(time)) %>% 
+  mutate(time = as.character(time)) %>% 
+  separate(col = time, into = c("date_na", "time"), sep = " ") %>%
+  mutate(temperature_c = tas - 273.15) %>% 
+  select(date, time, temperature_c) %>% 
+  filter(time == "12:00:00") # noon time temperatures
+```
+
+Just June
+```{r}
+miroc_119_june <- miroc_119 %>% 
+  mutate(month = month(date)) %>% 
+  filter(month == 07)
+
+miroc_585_june <- miroc_585 %>% 
+  mutate(month = month(date)) %>% 
+  filter(month == 07)
+
+noaa_119_june <-noaa_119 %>% 
+  mutate(month = month(date)) %>% 
+  filter(month == 07)
+
+noaa_585_june <- noaa_585 %>% 
+  mutate(month = month(date)) %>% 
+  filter(month == 07)
+```
+
+SSP 119
+```{r}
+ggplot() +
+  geom_line(data = noaa_119_june, aes(x = date,
+                            y = temperature_c),
+            color = "blue") +
+  geom_line(data = miroc_119_june, aes(x = date,
+                                  y = temperature_c),
+              color = "green") +
+  theme_minimal() +
+  labs(x = "Date",
+       y = "Temperature (Celsius)")
+```
+
+SSP 585
+```{r}
+ggplot() +
+  geom_line(data = noaa_585_june, aes(x = date,
+                            y = temperature_c),
+            color = "purple") +
+  geom_line(data = miroc_585_june, aes(x = date,
+                                  y = temperature_c),
+              color = "red") +
+  theme_minimal() +
+  labs(x = "Date",
+       y = "Temperature (Celsius)")
+```
+
+```{r}
+ggplot() +
+  geom_line(data = noaa_119_june, aes(x = date,
+                            y = temperature_c),
+            color = "blue") +
+  geom_line(data = miroc_119_june, aes(x = date,
+                                  y = temperature_c),
+              color = "green") +
+  geom_line(data = noaa_585_june, aes(x = date,
+                            y = temperature_c),
+            color = "purple") +
+  geom_line(data = miroc_585_june, aes(x = date,
+                                  y = temperature_c),
+              color = "red") +
+  geom_line(data = historical_merge, aes(x = date,
+                                   y = temperature_c),
+            color = "black") +
+  labs(x = "Date",
+       y = "Temperature (Celsius)") +
+  theme_minimal()
+```
+
