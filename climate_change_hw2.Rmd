@@ -40,8 +40,8 @@ noaa_119 <- read_csv(here("data", "noaa_119.csv")) %>%
   mutate(date = date(time)) %>% 
   mutate(time = as.character(time)) %>% 
   separate(col = time, into = c("date_na", "time"), sep = " ") %>%
-  mutate(temperature_c = tas - 273.15) %>% 
-  select(date, time, temperature_c) %>% 
+  mutate(temperature_c_noaa = tas - 273.15) %>% 
+  select(date, time, temperature_c_noaa) %>% 
   filter(time == "12:00:00") # noon time temperatures
 
 noaa_585 <- read_csv(here("data", "noaa_585.csv")) %>% 
@@ -49,8 +49,8 @@ noaa_585 <- read_csv(here("data", "noaa_585.csv")) %>%
   mutate(date = date(time)) %>% 
   mutate(time = as.character(time)) %>% 
   separate(col = time, into = c("date_na", "time"), sep = " ") %>%
-  mutate(temperature_c = tas - 273.15) %>% 
-  select(date, time, temperature_c) %>% 
+  mutate(temperature_c_noaa = tas - 273.15) %>% 
+  select(date, time, temperature_c_noaa) %>% 
   filter(time == "12:00:00") # noon time temperatures
 
 miroc_119 <- read_csv(here("data", "miroc_119.csv")) %>% 
@@ -58,8 +58,8 @@ miroc_119 <- read_csv(here("data", "miroc_119.csv")) %>%
   mutate(date = date(time)) %>% 
   mutate(time = as.character(time)) %>% 
   separate(col = time, into = c("date_na", "time"), sep = " ") %>%
-  mutate(temperature_c = tas - 273.15) %>% 
-  select(date, time, temperature_c) %>% 
+  mutate(temperature_c_miroc = tas - 273.15) %>% 
+  select(date, time, temperature_c_miroc) %>% 
   filter(time == "12:00:00") # noon time temperatures
 
 miroc_585 <- read_csv(here("data", "miroc_585.csv")) %>% 
@@ -67,8 +67,8 @@ miroc_585 <- read_csv(here("data", "miroc_585.csv")) %>%
   mutate(date = date(time)) %>% 
   mutate(time = as.character(time)) %>% 
   separate(col = time, into = c("date_na", "time"), sep = " ") %>%
-  mutate(temperature_c = tas - 273.15) %>% 
-  select(date, time, temperature_c) %>% 
+  mutate(temperature_c_miroc = tas - 273.15) %>% 
+  select(date, time, temperature_c_miroc) %>% 
   filter(time == "12:00:00") # noon time temperatures
 ```
 
@@ -89,55 +89,107 @@ noaa_119_june <-noaa_119 %>%
 noaa_585_june <- noaa_585 %>% 
   mutate(month = month(date)) %>% 
   filter(month == 07)
+
+ssp_119 <- merge(noaa_119_june, miroc_119_june, by = "date")
+
+ssp_585 <- merge(noaa_585_june, miroc_585_june, by = "date")
 ```
 
 SSP 119
 ```{r}
 ggplot() +
   geom_line(data = noaa_119_june, aes(x = date,
-                            y = temperature_c),
-            color = "blue") +
+                            y = temperature_c_noaa,
+                            color = "blue"),
+            size = 0.6) +
   geom_line(data = miroc_119_june, aes(x = date,
-                                  y = temperature_c),
-              color = "green") +
+                                  y = temperature_c_miroc,
+                                  color = "darkgreen"),
+            size = 0.6) +
+  geom_smooth(data = noaa_119_june, aes(x = date,
+                                        y = temperature_c_noaa),
+            color = "blue3",
+            size = 0.6) +
+  geom_smooth(data = miroc_119_june, aes(x = date,
+                                        y = temperature_c_miroc),
+            color = "darkgreen",
+            size = 0.6) +
   theme_minimal() +
+  scale_colour_manual(labels = c("NOAA", "MIROC", "trend", "trend"),
+                     values = c("blue", "darkgreen", "blue", "darkgreen")) +
   labs(x = "Date",
-       y = "Temperature (Celsius)")
+       y = "Temperature (Celsius)",
+       color = "Model",
+       title = "SSP 119 Temperature Projections")
+```
+
+SSP 119
+```{r}
+ggplot(data = ssp_119, aes(x = temperature_c_noaa,
+                           y = temperature_c_miroc)) +
+  theme_minimal() +
+  geom_point() +
+  labs(x = "NOAA Temperature Projections(C)",
+       y = "MIROC Temperature Projections(C)")
 ```
 
 SSP 585
 ```{r}
 ggplot() +
   geom_line(data = noaa_585_june, aes(x = date,
-                            y = temperature_c),
-            color = "purple") +
+                            y = temperature_c_noaa,
+                            colour = "purple"),
+            size = 0.6) +
   geom_line(data = miroc_585_june, aes(x = date,
-                                  y = temperature_c),
-              color = "red") +
+                                  y = temperature_c_miroc,
+                                  colour = "red"),
+            size = 0.6) +
   theme_minimal() +
+  scale_colour_manual(labels = c("NOAA", "MIROC"),
+                     values = c("purple", "red")) +
   labs(x = "Date",
-       y = "Temperature (Celsius)")
+       y = "Temperature (Celsius)",
+       color = "Model",
+       title = "SSP 585 Temperature Projections")
 ```
+
+SSP 585
+```{r}
+ggplot(data = ssp_585, aes(x = temperature_c_noaa,
+                           y = temperature_c_miroc)) +
+  theme_minimal() +
+  geom_point() +
+  labs(x = "NOAA Temperature Projections(C)",
+       y = "MIROC Temperature Projections(C)") +
+  geom_smooth(data = ssp_585, aes(x = temperature_c_noaa,
+                                  y = temperature_c_miroc),
+              method = lm) +
+  ggpubr::stat_regline_equation(label.x = 24, label.y = 28)
+```
+
 
 ```{r}
 ggplot() +
   geom_line(data = noaa_119_june, aes(x = date,
-                            y = temperature_c),
-            color = "blue") +
+                            y = temperature_c_noaa,
+                            colour = "blue")) +
   geom_line(data = miroc_119_june, aes(x = date,
-                                  y = temperature_c),
-              color = "green") +
+                            y = temperature_c_miroc,
+                            colour = "darkgreen")) +
   geom_line(data = noaa_585_june, aes(x = date,
-                            y = temperature_c),
-            color = "purple") +
+                            y = temperature_c_noaa,
+                            colour = "purple")) +
   geom_line(data = miroc_585_june, aes(x = date,
-                                  y = temperature_c),
-              color = "red") +
+                            y = temperature_c_miroc,
+                            colour = "red")) +
   geom_line(data = historical_merge, aes(x = date,
-                                   y = temperature_c),
-            color = "black") +
+                            y = temperature_c,
+                            colour = "black")) +
   labs(x = "Date",
-       y = "Temperature (Celsius)") +
+       y = "Temperature (Celsius)",
+       color = "Model") +
+  scale_colour_manual(labels = c("Historical", "NOAA SSP 119", "MIROC SSP 119", "NOAA SSP 585", "MIROC SSP 585"),
+                     values = c("black", "darkgreen", "blue", "red", "purple")) +
   theme_minimal()
 ```
 
