@@ -137,7 +137,7 @@ ggplot(data = ssp_119, aes(x = temperature_c_noaa,
   geom_smooth(data = ssp_119, aes(x = temperature_c_noaa,
                                   y = temperature_c_miroc),
               method = lm) +
-  ggpubr::stat_regline_equation(label.x = 24, label.y = 28)
+  ggpubr::stat_regline_equation(label.x = 24, label.y = 25.5)
 
 model <- lm(formula = temperature_c_miroc ~ temperature_c_noaa, data = ssp_119)
 summary(model)
