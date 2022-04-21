@@ -120,7 +120,8 @@ ggplot() +
   labs(x = "Date",
        y = "Temperature (Celsius)",
        color = "Model",
-       title = "SSP 119 Temperature Projections")
+       title = "SSP 1-1.9 Temperature Projections",
+       subtitle = "San Diego County, CA (2015-2100)")
 ```
 
 SSP 119
@@ -129,8 +130,14 @@ ggplot(data = ssp_119, aes(x = temperature_c_noaa,
                            y = temperature_c_miroc)) +
   theme_minimal() +
   geom_point() +
-  labs(x = "NOAA Temperature Projections(C)",
-       y = "MIROC Temperature Projections(C)")
+  labs(x = "NOAA Temperature Projections (Celsius)",
+       y = "MIROC Temperature Projections (Celsius)",
+       title = "NOAA vs. MIROC SSP 1-1.9 Temperature Projection Comparison",
+       subtitle = "San Diego County, CA (2015-2100)") +
+  geom_smooth(data = ssp_119, aes(x = temperature_c_noaa,
+                                  y = temperature_c_miroc),
+              method = lm) +
+  ggpubr::stat_regline_equation(label.x = 24, label.y = 28)
 ```
 
 SSP 585
@@ -150,7 +157,8 @@ ggplot() +
   labs(x = "Date",
        y = "Temperature (Celsius)",
        color = "Model",
-       title = "SSP 585 Temperature Projections")
+       title = "SSP 5-8.5 Temperature Projections",
+       subtitle = "San Diego County, CA (2015-2100)")
 ```
 
 SSP 585
@@ -159,8 +167,10 @@ ggplot(data = ssp_585, aes(x = temperature_c_noaa,
                            y = temperature_c_miroc)) +
   theme_minimal() +
   geom_point() +
-  labs(x = "NOAA Temperature Projections(C)",
-       y = "MIROC Temperature Projections(C)") +
+  labs(x = "NOAA Temperature Projections (Celsius)",
+       y = "MIROC Temperature Projections (Celsius)",
+       title = "NOAA vs. MIROC SSP 5-8.5 Temperature Projection Comparison",
+       subtitle = "San Diego County, CA (2015-2100)") +
   geom_smooth(data = ssp_585, aes(x = temperature_c_noaa,
                                   y = temperature_c_miroc),
               method = lm) +
@@ -187,8 +197,10 @@ ggplot() +
                             colour = "black")) +
   labs(x = "Date",
        y = "Temperature (Celsius)",
-       color = "Model") +
-  scale_colour_manual(labels = c("Historical", "NOAA SSP 119", "MIROC SSP 119", "NOAA SSP 585", "MIROC SSP 585"),
+       color = "Model",
+       title = "Historical and Projected Temperature Trends",
+       subtitle = "San Diego, CA") +
+  scale_colour_manual(labels = c("Historical", "NOAA SSP 1-1.9", "MIROC SSP 1-1.9", "NOAA SSP 5-8.5", "MIROC SSP 5-8.5"),
                      values = c("black", "darkgreen", "blue", "red", "purple")) +
   theme_minimal()
 ```
