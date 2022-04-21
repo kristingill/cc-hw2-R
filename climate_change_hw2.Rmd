@@ -138,6 +138,9 @@ ggplot(data = ssp_119, aes(x = temperature_c_noaa,
                                   y = temperature_c_miroc),
               method = lm) +
   ggpubr::stat_regline_equation(label.x = 24, label.y = 28)
+
+model <- lm(formula = temperature_c_miroc ~ temperature_c_noaa, data = ssp_119)
+summary(model)
 ```
 
 SSP 585
